@@ -6,6 +6,8 @@ Next.js App Router project for the Prevost tracking platform. Stack so far:
 - **Tailwind CSS v4** + **shadcn/ui** (`base-nova`, Base UI)
 - **Prisma ORM 7** + **PostgreSQL 18** (Docker Compose)
 - **better-auth** (email/password, Prisma adapter)
+- **TanStack Query v5** + **TanStack Table v9** + **TanStack Store**
+- **Zod** + **react-hook-form** (client forms)
 - **ESLint 9** (flat config) + **Prettier 3**
 
 Package manager: **pnpm**.
@@ -62,24 +64,204 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```text
 src/
+  actions/             # Server Actions ("use server") — lists & mutations
+    helpers/           # Shared action helpers (e.g. Zod parse)
   app/                 # App Router pages & API routes
   app/api/auth/        # better-auth catch-all handler
-  components/ui/       # shadcn/ui components
-  hooks/               # Shared hooks (e.g. use-mobile)
+  components/
+    data-table/        # Pagination UI for TanStack Table
+    providers/         # QueryProvider
+    ui/                # shadcn/ui components
+  hooks/
   lib/
-    auth.ts            # better-auth server config
-    auth-client.ts     # better-auth client
-    prisma.ts          # Prisma Client singleton (pg adapter)
-    utils.ts           # `cn` helper
+    auth.ts
+    auth-client.ts
+    data-table.ts      # Shared TanStack Table v9 feature set
+    pagination.ts      # Zod list/pagination schemas + PaginatedResult
+    prisma.ts
+    query-keys.ts      # TanStack Query key factory
+    utils.ts
 prisma/
-  schema.prisma
-  migrations/
-docker-compose.yml     # local Postgres 18
-prisma7.config.ts      # Prisma 7 config (datasource URL from env)
+docker-compose.yml
+prisma7.config.ts
 eslint.config.mjs
 prettier.config.mjs
-components.json        # shadcn config
+components.json
 ```
+
+## Conventions (required)
+
+### Data access: server actions + TanStack Query
+
+1. Put all server actions in `src/actions/` with `"use server"` at the top of the file.
+2. Validate action input with **Zod** (`parseActionInput` in `src/actions/helpers/parse.ts`, or parse next to the action).
+3. **Server Components** call server actions **directly** with `await`.
+4. **Client Components** load and mutate server data only through **TanStack Query**:
+   - `useQuery` / `useSuspenseQuery` → server action as `queryFn`
+   - `useMutation` → server action as `mutationFn`, then invalidate via query keys
+5. Do **not** add Route Handlers for ordinary app CRUD when a server action exists.
+6. Keep query keys in `src/lib/query-keys.ts` (hierarchical factory). Invalidate by prefix.
+7. Put every server-owned table slice (`pagination`, `sorting`, filters) in the **query key**. Prefer `placeholderData: keepPreviousData` for page transitions.
+
+```tsx
+// Client — query
+const listInput = { pageIndex, pageSize, sorting };
+const { data } = useQuery({
+  queryKey: queryKeys.example.list(listInput),
+  queryFn: () => listExamples(listInput),
+  placeholderData: keepPreviousData,
+});
+
+// Client — mutation
+const mutation = useMutation({
+  mutationFn: createExample,
+  onSuccess: () => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.example.lists() });
+  },
+});
+
+// Server Component — direct
+const initial = await listExamples({ pageIndex: 0, pageSize: 10, sorting: [] });
+```
+
+Optional: hydrate with `useQuery({ ..., initialData: initial })` from an RSC.
+
+### List / table pagination (TanStack Table v9 + shadcn)
+
+Follow TanStack Table **v9** APIs (`useTable`, `tableFeatures`, feature plugins)—not the v8 `useReactTable` API.
+
+1. Every table uses `@tanstack/react-table` with `manualPagination: true` (and `manualSorting: true` when sorting is server-side).
+2. Register features via `dataTableFeatures` in `src/lib/data-table.ts` (pagination + sorting), or extend that set.
+3. Every table (and other long paged lists) must render **shadcn Pagination** through `DataTablePagination` (`src/components/data-table/data-table-pagination.tsx`) or an equivalent built from `@/components/ui/pagination`.
+4. List server actions accept TanStack-aligned input and return `PaginatedResult<T>`:
+
+| Field | Meaning |
+| --- | --- |
+| `pageIndex` | 0-based page (`PaginationState`) |
+| `pageSize` | rows per page (max 100) |
+| `sorting` | TanStack `SortingState` (`{ id, desc }[]`) |
+| `items` | current page rows → table `data` |
+| `rowCount` | total rows → table `rowCount` |
+| `pageCount` | derived page count |
+
+Helpers: `src/lib/pagination.ts` (`listQueryInputSchema`, `toSkipTake`, `toPaginatedResult`).  
+Reference action: `src/actions/example.ts`.
+
+```tsx
+"use client";
+
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useCreateAtom, useSelector } from "@tanstack/react-store";
+import {
+  createColumnHelper,
+  useTable,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
+import { listExamples } from "@/actions/example";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
+import { dataTableFeatures } from "@/lib/data-table";
+import { queryKeys } from "@/lib/query-keys";
+
+const helper = createColumnHelper<typeof dataTableFeatures, ExampleItem>();
+const columns = helper.columns([helper.accessor("name", { header: "Name" })]);
+const emptyRows: ExampleItem[] = [];
+
+function ExamplesTable() {
+  const paginationAtom = useCreateAtom<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const sortingAtom = useCreateAtom<SortingState>([]);
+  const pagination = useSelector(paginationAtom, (v) => v);
+  const sorting = useSelector(sortingAtom, (v) => v);
+
+  const listInput = { ...pagination, sorting };
+  const { data } = useQuery({
+    queryKey: queryKeys.example.list(listInput),
+    queryFn: () => listExamples(listInput),
+    placeholderData: keepPreviousData,
+  });
+
+  const table = useTable({
+    features: dataTableFeatures,
+    columns,
+    data: data?.items ?? emptyRows,
+    rowCount: data?.rowCount,
+    atoms: { pagination: paginationAtom, sorting: sortingAtom },
+    manualPagination: true,
+    manualSorting: true,
+  });
+
+  return (
+    <>
+      {/* render with table.getHeaderGroups() / getRowModel() + table.FlexRender */}
+      <DataTablePagination
+        pageIndex={table.state.pagination.pageIndex}
+        pageSize={table.state.pagination.pageSize}
+        pageCount={table.getPageCount()}
+        rowCount={table.getRowCount()}
+        canPreviousPage={table.getCanPreviousPage()}
+        canNextPage={table.getCanNextPage()}
+        onPreviousPage={() => table.previousPage()}
+        onNextPage={() => table.nextPage()}
+        onPageIndexChange={(pageIndex) => table.setPageIndex(pageIndex)}
+      />
+    </>
+  );
+}
+```
+
+Do **not** copy query rows into a separate `useState`—feed `data?.items ?? emptyRows` (stable empty fallback) straight into `useTable`.
+
+### Forms (client): Zod + react-hook-form
+
+1. Always define a **Zod** schema for form values.
+2. Always use **react-hook-form** with `@hookform/resolvers/zod` (`zodResolver`).
+3. Prefer shadcn **Field** / form primitives under `src/components/ui/` for layout and a11y.
+4. Submit through `useMutation` → server action (do not bypass TanStack Query for writes).
+5. Re-validate the same shape on the server action with Zod before touching the DB.
+
+```tsx
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(1),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+export function ExampleForm() {
+  const queryClient = useQueryClient();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { name: "" },
+  });
+
+  const mutation = useMutation({
+    mutationFn: createExample, // server action
+    onSuccess: async () => {
+      form.reset();
+      await queryClient.invalidateQueries({ queryKey: queryKeys.example.lists() });
+    },
+  });
+
+  return (
+    <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
+      {/* Field + Input bound via form.register / Controller */}
+    </form>
+  );
+}
+```
+
+### Providers
+
+- `QueryProvider` wraps the app in `src/app/layout.tsx` (`@tanstack/react-query` + React Query Devtools in development).
 
 ## Stack notes
 
@@ -88,6 +270,7 @@ components.json        # shadcn config
 - Prisma 7 config lives in `prisma7.config.ts` (loads `DATABASE_URL` via `dotenv`).
 - Client is generated to `src/generated/prisma` and used through `src/lib/prisma.ts` with `@prisma/adapter-pg`.
 - Local DB defaults (from `docker-compose.yml`): user/password `prevost`, database `prevost_tracking`, port `5432`.
+- Prefer Prisma inside server actions (or shared server-only modules), not from Client Components.
 
 ### Auth (better-auth)
 
@@ -101,6 +284,7 @@ components.json        # shadcn config
 - Style preset: `base-nova` (see `components.json`).
 - Theme tokens and Tailwind entry: `src/app/globals.css`.
 - Full shadcn component set under `src/components/ui/`.
+- Tables: `@/components/ui/table` + TanStack Table v9 + `DataTablePagination`.
 
 ### Lint & format
 
@@ -119,12 +303,17 @@ pnpm format:check
 2. Prisma 7 + Docker Postgres + base packages
 3. better-auth wiring + auth schema migration
 4. shadcn/ui component install
-5. ESLint policy + Prettier setup (staged / in progress)
+5. ESLint policy + Prettier setup
+6. TanStack Query/Table, Zod, react-hook-form, server-action + pagination conventions
 
 ## Learn more
 
 - [Next.js docs](https://nextjs.org/docs)
 - [Prisma docs](https://www.prisma.io/docs)
 - [better-auth docs](https://www.better-auth.com/docs)
+- [TanStack Query](https://tanstack.com/query/latest)
+- [TanStack Table](https://tanstack.com/table/latest) (v9: `useTable` / features)
+- [Zod](https://zod.dev)
+- [react-hook-form](https://react-hook-form.com)
 - [shadcn/ui](https://ui.shadcn.com)
 - [Tailwind CSS v4](https://tailwindcss.com/docs)
