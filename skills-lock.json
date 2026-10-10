@@ -25,6 +25,12 @@
       "skillPath": "skills/engineering/codebase-design/SKILL.md",
       "computedHash": "b2888e4f4e8c0af3bfd557575a64b905c44e6248c3101d72077816882b3a92b9"
     },
+    "core": {
+      "source": "tanstack/table",
+      "sourceType": "github",
+      "skillPath": "packages/table-core/skills/core/SKILL.md",
+      "computedHash": "9122106b0438c1a0d43433b1be648fbd32b7228dc6c33f750f0986ba20daab6e"
+    },
     "create-auth": {
       "source": "better-auth/skills",
       "sourceType": "github",
@@ -61,6 +67,12 @@
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
     },
+    "getting-started": {
+      "source": "tanstack/table",
+      "sourceType": "github",
+      "skillPath": "packages/alpine-table/skills/getting-started/SKILL.md",
+      "computedHash": "7aec6aae62655246dc07b7f6d3e67c7ffb9100ea5826d559e4a7ce326e4662cf"
+    },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -91,6 +103,12 @@
       "skillPath": "skills/migrate-radix-to-base/SKILL.md",
       "computedHash": "e1f2030ee5059be3dff0812ca0e4b995ee9fa3132176f049ebe6c90346a6755e"
     },
+    "migrate-v8-to-v9": {
+      "source": "tanstack/table",
+      "sourceType": "github",
+      "skillPath": "packages/angular-table/skills/migrate-v8-to-v9/SKILL.md",
+      "computedHash": "7b34128e0d64b213b12772b3438e2df7aed0933865aaaa459bb1b67d980b45a1"
+    },
     "next-bundle-optimizer": {
       "source": "vercel/next.js",
       "sourceType": "github",
@@ -108,6 +126,36 @@
       "sourceType": "github",
       "skillPath": "skills/next-dev-loop/SKILL.md",
       "computedHash": "c305c83b726212e0284930c65cded2c4a4ab85f9bfccfa83b62274247fe3580e"
+    },
+    "next-stack": {
+      "source": "janjaszczak/cursor",
+      "sourceType": "github",
+      "skillPath": "skills/next-stack/SKILL.md",
+      "computedHash": "08fbffb5c964e6d32d9e2a581eef07f54464a83a185cec3bfea827054e49fc69"
+    },
+    "nextjs": {
+      "source": "pymodel/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nextjs/SKILL.md",
+      "computedHash": "92ec10ddef26c3722acd05afb2255a3c4b5482d4e10631df7da08849f4f84e76"
+    },
+    "nextjs-app-router": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/nextjs-app-router/SKILL.md",
+      "computedHash": "59651cf76c1a5a7704ea71ec275f98f702623ceb7bcf2ab2e093802ac6b81104"
+    },
+    "nextjs-data-fetching": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/nextjs-data-fetching/SKILL.md",
+      "computedHash": "3a82ef614a13d4ae78321e6834f8fc334510e20f8e605a7b542bfba2e9be9dab"
+    },
+    "nuqs": {
+      "source": "pymodel/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nuqs/SKILL.md",
+      "computedHash": "25c1a4ce7784a7fb1206eea96909e005f1decb2a3a11dc7917e988dece859cbe"
     },
     "organization-best-practices": {
       "source": "better-auth/skills",
@@ -175,6 +223,24 @@
       "skillPath": "prisma-upgrade-v7/SKILL.md",
       "computedHash": "9a65f02d4ae2f3d1e81efb6be888f33a083b1c06d866ff5f762cc30786e4c8ce"
     },
+    "react": {
+      "source": "pymodel/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react/SKILL.md",
+      "computedHash": "185ae5be2814cc943d88af40a662de4dfcb3255b08d1eb7f0c5f8ca04a340693"
+    },
+    "react-hook-form": {
+      "source": "pymodel/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-hook-form/SKILL.md",
+      "computedHash": "fb588f6a36ab872195502329268adae71f86d1647afb1c517afb776aa4a3d3cd"
+    },
+    "react-hook-form-zod": {
+      "source": "secondsky/claude-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/react-hook-form-zod/skills/react-hook-form-zod/SKILL.md",
+      "computedHash": "c60899bb67bc006b517d4cc66329905d31c06b980015502543a742b73176d5d2"
+    },
     "review-animations": {
       "source": "emilkowalski/skills",
       "sourceType": "github",
@@ -187,6 +253,18 @@
       "skillPath": "skills/shadcn/SKILL.md",
       "computedHash": "da388f632cd83783c02967446e21941c9ee8291ccb43ba74c23f7d4e9b7c298c"
     },
+    "table-features": {
+      "source": "tanstack/table",
+      "sourceType": "github",
+      "skillPath": "packages/table-core/skills/table-features/SKILL.md",
+      "computedHash": "51930a60621ca347458440a6592062de0fdb1819362dc2d9e56983dd662c0f93"
+    },
+    "table-state": {
+      "source": "tanstack/table",
+      "sourceType": "github",
+      "skillPath": "packages/alpine-table/skills/table-state/SKILL.md",
+      "computedHash": "6d7f37af8ae66ea95aa87dbb4b0829903e049b42dfb7abe8f9fd4f1addb04232"
+    },
     "tailwind-v4-shadcn": {
       "source": "secondsky/claude-skills",
       "sourceType": "github",
@@ -194,10 +272,10 @@
       "computedHash": "f671120a57119a94f8a6447a760629878b8ead36750297697006136dbaac4355"
     },
     "tanstack-query": {
-      "source": "tanstack-skills/tanstack-skills",
+      "source": "pymodel/react-frontend-skills",
       "sourceType": "github",
-      "skillPath": "plugins/tanstack-query/skills/tanstack-query/SKILL.md",
-      "computedHash": "b8a0477cd4d7bf8fa54d27f8e64d82388402f0d502591db50a357df5b9995c75"
+      "skillPath": "skills/tanstack-query/SKILL.md",
+      "computedHash": "447614575a82d1baa7c4d210bfe0cb8f722af66cbf0774176286c68dfede31d4"
     },
     "tanstack-query-best-practices": {
       "source": "deckardger/tanstack-agent-skills",
@@ -216,6 +294,12 @@
       "sourceType": "github",
       "skillPath": "better-auth/twoFactor/SKILL.md",
       "computedHash": "5bc3051aef5060db013f0b3cbe812c40dbae5c22d6ba3ddde4b941158362a197"
+    },
+    "typescript": {
+      "source": "pymodel/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/typescript/SKILL.md",
+      "computedHash": "fee484e582653d80725982a6444426ff2c314aff4dddeefc13ebc86ea16edc47"
     },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
@@ -246,6 +330,24 @@
       "sourceType": "github",
       "skillPath": "skills/web-design-guidelines/SKILL.md",
       "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
+    },
+    "zod": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.curated/zod/SKILL.md",
+      "computedHash": "c69b5133b65643317236707f2cd3e521b4fc6e5ee5fd6c6c00cf62a37dfd0144"
+    },
+    "zod-4": {
+      "source": "prowler-cloud/prowler",
+      "sourceType": "github",
+      "skillPath": "skills/zod-4/SKILL.md",
+      "computedHash": "74c140363ea586fcb92644559862ce181af16f4644a41db14722323421bbfc00"
+    },
+    "zod-validation-utilities": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/zod-validation-utilities/SKILL.md",
+      "computedHash": "9785b925118b719c6f2c34b3d1fb2052a272d2efee4853ced86b8d6be5a7b061"
     }
   }
 }
