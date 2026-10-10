@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: prevost
+      POSTGRES_PASSWORD: prevost
+      POSTGRES_DB: prevost_tracking
+    volumes:
+      # Postgres 18+ expects the volume at /var/lib/postgresql (not .../data)
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prevost -d prevost_tracking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
