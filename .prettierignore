@@ -1,0 +1,29 @@
+# Dependencies & package manager
+node_modules
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Local agent skill packs (third-party docs; leave untouched)
+.agents
+
+# Build / framework output
+.next
+out
+build
+dist
+coverage
+
+# Generated
+src/generated
+next-env.d.ts
+*.tsbuildinfo
+
+# Env & local secrets
+.env
+.env.*
+
+# Misc
+.DS_Store
+*.pem
+.vercel
